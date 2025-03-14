@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Your page description here">
+    <meta name="author" content="Your name or organization">
+    <meta name="keywords" content="keywords, go, here">
+    <title>Your Page Title</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Add any other relevant links, scripts, or meta tags here -->
+</head>
