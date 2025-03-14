@@ -1,0 +1,31 @@
+<?php
+function displayJsonAsHtmlList($json) {
+    // Decode the JSON string
+    $data = json_decode($json, true);
+    
+    // Begin HTML output
+    echo "<ul>";
+    
+    // Loop through each person in the data
+    foreach ($data as $person) {
+        echo "<li>";
+        echo "<strong>Name:</strong> " . $person['Name'] . "<br>";
+        echo "<strong>Birth:</strong> " . $person['Birth'] . "<br>";
+        echo "<strong>Marriage:</strong> " . $person['Marriage'] . "<br>";
+        echo "<strong>Arrival:</strong> " . $person['Arrival'] . "<br>";
+        echo "<strong>Residence:</strong> " . $person['Residence'];
+        echo "</li><br>";
+    }
+    
+    // End HTML output
+    echo "</ul>";
+}
+
+// Example usage:
+$jsonData = '[{"Name": "Rankin Hering", "Birth": "Feb 1859 Pennsylvania, USA", "Marriage": "1877", "Arrival": "", "Residence": "1900 Manhattan, New York, New York, USA"}, 
+{"Name": "Jennie Hering", "Birth": "Oct 1878 Jersey City", "Marriage": "", "Arrival": "", "Residence": "1900 Manhattan, New York, New York, USA"}, 
+{"Name": "Edna Hering", "Birth": "Feb 1880 Jersey City", "Marriage": "", "Arrival": "", "Residence": "1900 Manhattan, New York, New York, USA"}]'; // Shortened for brevity
+
+// Call the function to display the list
+displayJsonAsHtmlList($jsonData);
+?>
