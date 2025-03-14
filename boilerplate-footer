@@ -1,0 +1,15 @@
+<body>
+    <header>
+        <h1>Welcome to My Website</h1>
+    </header>
+
+    <main>
+        <p>Main content goes here.</p>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Your Website. All rights reserved.</p>
+        <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+    </footer>
+</body>
+</html>
