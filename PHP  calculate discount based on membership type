@@ -1,0 +1,91 @@
+<?php
+
+// Function to calculate discount based on membership type
+// 
+// Note that the function is expecting 2 parameters, which will be sent to the function once it's run
+
+function calculateDiscount($membershipType, $totalAmount)
+{
+    // create a variable with an initial value of 0:
+
+    $discount = 0;
+
+    // Using switch/case to determine discount rate
+
+    // Note: $membershipType is one of the parameters sent to the function, above
+
+    switch ($membershipType) {
+        case "Gold":
+            $discount = 0.20; // 20% discount
+            break;
+        case "Silver":
+            $discount = 0.10; // 10% discount
+            break;
+        case "Bronze":
+            $discount = 0.05; // 5% discount
+            break;
+        default:
+            $discount = 0; // No discount
+    }
+
+    // calculate the discount:
+
+    return $totalAmount - ($totalAmount * $discount);
+
+    // Looking at the discount snippet above, we see that PHP, like JavaScript, has a Math Object - we are telling the server:
+    // multiply $totalAmount X $discount
+    // then subtract that value from $totalAmount
+    // then show (return) the result on the screen
+}
+
+// Here we'll define a list (an array) of customers with their membership types and purchase amounts.
+
+// Note the key/value pairs:
+
+$customers = [
+    ["name" => "Alice", "membership" => "Gold", "amount" => 150],
+    ["name" => "Bob", "membership" => "Silver", "amount" => 200],
+    ["name" => "Charlie", "membership" => "Bronze", "amount" => 100],
+    ["name" => "David", "membership" => "None", "amount" => 50]
+];
+
+// Next we'll loop through $customers and display their discounted total.
+
+// As we do so, note the use of $customers and $customer: 
+
+// $customers is our collection of customers. 
+
+// $customer is an alias for the particular record that is being evaluated by PHP at that moment
+
+// In the code below, I cannot change the name of $customers; however, I can change $customer to anything I want, so long as I change all instances of it.
+
+// Next we'll use foreach to perform the same operation on each of the customers in our array.
+
+// This is where we run the custom function we created above
+
+// The line below says, for each item in our list of customers perform the same series of steps that will be performed on the others in the list.
+
+// Note that while it does so, whichever record is being worked on, such as Charlie, is temporarily assigned the name $customer
+
+// "foreach" runs the operations we tell it to until it runs out of data
+
+foreach ($customers as $customer) {
+
+    $finalAmount = calculateDiscount($customer["membership"], $customer["amount"]);
+
+    // Do you see where this value used above comes from? "$customer["membership"]?
+
+    // Here we do a "conditional check" for discount eligibility
+
+    // In the line below we are saying, IF a condition is TRUE, THEN run some code
+
+    // ELSE and ELSEIF are used in a situation where the above condition is NOT true: IF condition IS true, run code; if not, run different code
+
+    // Note how we use "number_format" - a function built-in to PHP used to format numbers with grouped thousands and a specified number of decimal places
+
+    if ($finalAmount < $customer["amount"]) {
+        echo "{$customer["name"]} (Membership: {$customer["membership"]}) gets a discount! Final Price: $" . number_format($finalAmount, 2) . "";
+    } else {
+        echo "{$customer["name"]} (Membership: {$customer["membership"]}) has no discount. Total: $" . number_format($finalAmount, 2) . "";
+    }
+} // closes our foreach operation
