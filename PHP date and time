@@ -1,0 +1,18 @@
+<?php
+// Set your timezone
+date_default_timezone_set("America/New_York");
+
+// Show the current date
+echo "<h2>Today's Date:</h2>";
+echo date("l, F j, Y"); // Example: Monday, April 8, 2025
+
+// Show the current time
+echo "<h2>Current Time:</h2>";
+echo date("h:i:s A"); // Example: 03:45:12 PM
+
+// Show a custom message with date and time
+echo "<p>The page was loaded on " . date("Y-m-d H:i:s") . ".</p>";
+
+// Show the Unix timestamp
+echo "<p>Current Timestamp: " . time() . "</p>";
+?>
