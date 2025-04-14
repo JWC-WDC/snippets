@@ -1,6 +1,4 @@
 <?php
-// Load external functions:
-require 'functions.php';
 
 // Remember: When validating forms, we want to *validate in the browser first* using JavaScript. 
 
