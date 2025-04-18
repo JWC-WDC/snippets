@@ -1,0 +1,83 @@
+<?php
+// ==============================================
+// 1. ERROR REPORTING SETUP
+// ==============================================
+// This tells PHP to report *all* types of errors (notices, warnings, etc.)
+// and to show them directly in the browser. This is great for development.
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+
+// ==============================================
+// 2. CUSTOM ERROR HANDLER
+// ==============================================
+// This lets you override PHP’s default error messages with your own formatting.
+// Useful for logging or customizing how errors are shown to users.
+function myErrorHandler($errno, $errstr, $errfile, $errline) {
+    echo "<b>Custom Handler:</b> [$errno] $errstr in $errfile on line $errline<br>";
+}
+set_error_handler("myErrorHandler");
+
+
+// ==============================================
+// 3. TRY-CATCH BLOCK (EXCEPTION HANDLING)
+// ==============================================
+// This structure lets you “try” risky code, and “catch” exceptions (errors)
+// without crashing the whole script. Mostly used in object-oriented PHP.
+try {
+    throw new Exception("This is a custom exception.");
+} catch (Exception $e) {
+    echo "<b>Caught Exception:</b> " . $e->getMessage() . "<br>";
+}
+
+
+// ==============================================
+// 4. NOTICE ERROR (undefined variable)
+// ==============================================
+// A "notice" is a soft error. PHP will run the code but warn you something might be wrong.
+echo "<b>Notice Test:</b> ";
+echo $someUndefinedVar . "<br>"; // Triggers a notice
+
+
+// ==============================================
+// 5. WARNING (e.g., missing file)
+// ==============================================
+// A "warning" is more serious. PHP skips the failed operation but keeps running the script.
+echo "<b>Warning Test:</b> ";
+include("nonexistent-file.php"); // Triggers a warning
+
+
+// ==============================================
+// 6. SHUTDOWN FUNCTION (CATCH FATAL ERRORS)
+// ==============================================
+// This lets you catch *fatal errors* at the end of script execution, after everything else.
+// Useful for cleanup, logging, or graceful failure messages.
+function shutdownHandler() {
+    $error = error_get_last();
+    if ($error !== NULL) {
+        echo "<b>Shutdown Handler Caught:</b> {$error['message']} in {$error['file']} on line {$error['line']}<br>";
+    }
+}
+register_shutdown_function('shutdownHandler');
+
+
+// ==============================================
+// 7. FATAL ERROR (undefined function)
+// ==============================================
+// A "fatal error" stops the script immediately. This one calls a non-existent function.
+// The shutdown function above will catch it and show a message.
+// Comment this line if you want to test the rest of the script first.
+echo "<b>Fatal Error Test:</b> ";
+undefinedFunction(); // Fatal error
+
+
+// ==============================================
+// 8. PARSE ERROR (SYNTAX ERROR) – Test Separately
+// ==============================================
+// This kind of error breaks the script before it even runs.
+// You can't catch this from inside PHP. Try pasting the below in a new file to see it.
+/*
+<?php
+echo "This will break"  // <- Missing semicolon
+?>
+*/
