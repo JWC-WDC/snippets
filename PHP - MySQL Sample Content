@@ -1,0 +1,68 @@
+<?php
+// Step 1: Define database connection settings
+$host = 'localhost';
+$user = 'root';
+$pass = ''; // Change this if your MySQL has a password
+$dbname = 'tech282';
+
+// Step 2: Connect to MySQL server (not selecting a database yet)
+$conn = new mysqli($host, $user, $pass);
+
+// Check if the connection works
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Step 3: Create the database if it doesn't exist
+$conn->query("CREATE DATABASE IF NOT EXISTS $dbname");
+
+// Step 4: Select the database
+$conn->select_db($dbname);
+
+// Step 5: Create the Contacts table if it doesn't already exist
+$createTableSQL = "CREATE TABLE IF NOT EXISTS Contacts (
+    id INT AUTO_INCREMENT PRIMARY KEY,           // Auto-incrementing ID
+    first_name VARCHAR(50),                      // First name (max 50 characters)
+    last_name VARCHAR(50),                       // Last name (max 50 characters)
+    phone VARCHAR(20),                           // Phone number (up to 20 characters)
+    email VARCHAR(100)                           // Email address (max 100 characters)
+)";
+$conn->query($createTableSQL);
+
+// Step 6: Open the CSV file
+$csvFile = fopen("contacts.csv", "r");  // Reads the file in read-only mode
+$rows = [];                             // Empty array to store rows
+$first = true;                          // Flag to skip the header row
+
+// Step 7: Read the CSV file line by line
+while (($data = fgetcsv($csvFile)) !== FALSE) {
+    if ($first) {
+        $first = false; // Skip the first row (headers)
+        continue;
+    }
+    $rows[] = $data; // Store each row in the array
+}
+fclose($csvFile); // Close the file after reading
+
+// Step 8: Loop through each row and insert into the database
+foreach ($rows as $row) {
+    // Escape data to prevent SQL injection
+    $first_name = $conn->real_escape_string($row[0]);
+    $last_name = $conn->real_escape_string($row[1]);
+    $phone = $conn->real_escape_string($row[2]);
+    $email = $conn->real_escape_string($row[3]);
+
+    // Build the SQL INSERT statement
+    $sql = "INSERT INTO Contacts (first_name, last_name, phone, email)
+            VALUES ('$first_name', '$last_name', '$phone', '$email')";
+
+    // Execute the SQL query
+    $conn->query($sql);
+}
+
+// Step 9: Final message to confirm import worked
+echo "Contacts imported successfully!";
+
+// Step 10: Close the connection to the database
+$conn->close();
+?>
