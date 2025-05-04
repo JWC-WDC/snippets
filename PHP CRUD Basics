@@ -1,0 +1,166 @@
+<?php
+//note how we "include" a different file, in this case, our connections to the database. This can be reused in every page:
+
+include 'db/db.php';
+
+// if the $_POST value = "create" (C)
+
+// The $_POST value sent from the form, like those that follow it, is tested using an IF, seeing whether the form field named 'create' exists in the submitted POST data.
+
+// If so, it:
+
+// creates PHP variables based on the $_POST's content
+// opens a connection to the database
+// INSERTS our form data into the users table
+// redirects the user to the original page
+// let's see a CREATE operation first
+
+// if the $_POST value = "create":
+
+if (isset($_POST['create'])) {
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    mysqli_query($conn, "INSERT INTO users (name, email) VALUES ('$name', '$email')");
+    header("Location: crud.php"); // the header() function is used to send raw HTTP headers to the browser before any content is output.
+
+    exit; // the exit (or its alias die) is used to stop script execution immediately
+}
+
+
+
+
+// if the $_POST value = "delete" (D):
+
+// note how we grab the id from $_POST
+
+if (isset($_GET['delete'])) {
+    $id = $_GET['delete']; // ID value of the record clicked
+    mysqli_query($conn, "DELETE FROM users WHERE id=$id");
+    header("Location: crud.php");
+    exit;
+}
+
+
+
+
+// if the $_POST value = "edit" we are conveying extra information
+
+// below, $editMode is not built into PHP — it's a custom variable that we define for our script's logic.   
+
+// the $editMode variable acts as a flag to indicate whether the script is currently in "edit mode" (i.e., the user is editing an existing record) or not. We do not want multiple people editing the same record.
+
+$editMode = false; // not being edited, value changes below
+
+$editUser = ['id' => '', 'name' => '', 'email' => '']; // $editUser is initialized as an empty user array with default values, used to pre-fill form fields in case no user is being edited.
+
+if (isset($_GET['edit'])) {
+    $id = $_GET['edit'];
+    $result = mysqli_query($conn, "SELECT * FROM users WHERE id=$id");
+    $editUser = mysqli_fetch_assoc($result); // mysqli_fetch_assoc($result) returns the user row as an associative array (e.g., ['id' => 2, 'name' => 'Alice', 'email' => 'alice@example.com']).
+
+    // That array is assigned to $editUser, which can now be used to pre-fill the form fields with this user\'s current information.
+
+    // $editMode is set to true to signal that the form should show "update" rather than "create" behavior.
+
+    $editMode = true;
+}
+
+
+
+
+// if the $_POST value = "update":
+
+if (isset($_POST['update'])) {
+    $id = $_POST['id'];
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    mysqli_query($conn, "UPDATE users SET name='$name', email='$email' WHERE id=$id");
+    header("Location: crud.php");
+    exit;
+}
+
+// Notes: 
+
+// Remember that order counts. When using CRUD operations such as INSERT, the INSERT statement must have the values to be inserted in the same order as they are referenced in the 1st part of the statement.
+
+// Note how each IF comparison has its own connection stroing. 
+
+// That is because when - for example - a DELETE operatin is run, it needs another connection to the database (the first connection we make using our include file is for the original page load.)
+
+?>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Simple PHP CRUD</title>
+</head>
+
+<body>
+    <h2>
+        <?php echo $editMode ? "Edit User" : "Add User"; ?>
+    </h2>
+
+    <form method="post">
+
+        <input type="hidden" name="id" value="<?php echo $editUser['id']; ?>">
+
+        <input type="text" name="name" placeholder="Name" required value="<?php echo $editUser['name']; ?>">
+
+        <input type="email" name="email" placeholder="Email" required value="<?php echo $editUser['email']; ?>">
+
+        <button type="submit" name="<?php echo $editMode ? "update" : "create"; ?>">
+            <?php echo $editMode ? "Update" : "Create"; ?>
+
+            // remember our discussion of the ? aka the ternary operator, which is shorthand for an IF/ELSE
+
+            // This code is inside an HTML <button> tag and uses PHP shorthand conditional logic to dynamically change both button's the name attribute and the button's visible text, depending on the value of the $editMode variable.
+            </button>
+    </form>
+
+    <h2>All Users</h2>
+
+    // Tables are largely verboten in modern development UNLESS you are presenting your data in tabular format, like we do here.
+
+    // FIrst create some column headlines:
+
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+
+        <?php
+        // now we connect to the database; request specific data; and stuff that value into a variable ($result). 
+
+        // Then we use PHP WHILE to loop through the results
+
+        // More here:
+
+        // https://chatgpt.com/share/6817a8e2-6d14-800e-96f6-87d0bae8b8f3
+
+        // The expression {$row['id']} is using curly braces to embed a variable (or an array element) inside a string
+
+        $result = mysqli_query($conn, "SELECT * FROM users");
+
+        while ($row = mysqli_fetch_assoc($result)) {
+
+            // remember: in HTML <tr> is a row in a table an<td> are the columns in the same table,
+
+            echo "<tr>
+                <td>{$row['id']}</td>
+                <td>{$row['name']}</td>
+                <td>{$row['email']}</td>
+                <td>
+                    <a href='crud.php?edit={$row['id']}'>Edit</a> |
+                    <a href='crud.php?delete={$row['id']}' onclick='return confirm(\"Delete this user?\");'>Delete</a>
+                </td>
+            </tr>";
+        }
+        ?>
+    </table>
+</body>
+
+</html>
