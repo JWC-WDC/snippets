@@ -83,9 +83,10 @@ foreach ($customers as $customer) {
 
     // Note how we use "number_format" - a function built-in to PHP used to format numbers with grouped thousands and a specified number of decimal places
 
-    if ($finalAmount < $customer["amount"]) {
-        echo "{$customer["name"]} (Membership: {$customer["membership"]}) gets a discount! Final Price: $" . number_format($finalAmount, 2) . "";
+ if ($finalAmount < $customer['amount']) {
+        echo '<p>' . $customer['name'] . ' (Membership: ' . $customer['membership'] . ') gets a discount! Final Price: $' . number_format($finalAmount, 2) . '</p>';
     } else {
-        echo "{$customer["name"]} (Membership: {$customer["membership"]}) has no discount. Total: $" . number_format($finalAmount, 2) . "";
+        echo '<p>' . $customer['name'] . ' (Membership: ' . $customer['membership'] . ') has no discount. Total: $' . number_format($finalAmount, 2) . '</p>';
     }
+
 } // closes our foreach operation
