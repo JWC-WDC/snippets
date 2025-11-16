@@ -1,0 +1,47 @@
+<style>
+    /* Basic reset */
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    /* Navigation bar */
+    nav {
+        background-color: #0b6ef6;
+        padding: 10px 20px;
+    }
+
+    nav ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+    }
+
+    nav li {
+        margin-right: 20px;
+    }
+
+    nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 6px 8px;
+        transition: background 0.3s;
+    }
+
+    nav a:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+    }
+</style>
+
+<nav>
+    <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Portfolio</a></li>
+        <li><a href="#">Contact</a></li>
+    </ul>
+</nav>
