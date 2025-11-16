@@ -1,0 +1,81 @@
+<?php
+// Setup empty variables
+$name = "";
+$email = "";
+$message = "";
+$errors = [];
+
+// When form is submitted
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    // --- SANITIZE ---
+    $name = htmlspecialchars(trim($_POST["name"] ?? ""), ENT_QUOTES);
+    $email = filter_var(trim($_POST["email"] ?? ""), FILTER_SANITIZE_EMAIL);
+    $message = htmlspecialchars(trim($_POST["message"] ?? ""), ENT_QUOTES);
+
+    // --- VALIDATE ---
+
+    // Name required, at least 2 chars
+    if ($name === "" || strlen($name) < 2) {
+        $errors["name"] = "Please enter your name (2+ characters).";
+    }
+
+    // Email required and must be valid
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors["email"] = "Please enter a valid email address.";
+    }
+
+    // Message required
+    if ($message === "") {
+        $errors["message"] = "Message cannot be empty.";
+    }
+
+    // If no errors: show cleaned data
+    if (empty($errors)) {
+        echo "<h2>Form submitted successfully!</h2>";
+        echo "<p><strong>Name:</strong> $name</p>";
+        echo "<p><strong>Email:</strong> $email</p>";
+        echo "<p><strong>Message:</strong> $message</p>";
+        exit; 
+    }
+}
+?>
+
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Simple PHP Form Validation</title>
+</head>
+<body>
+
+<h1>Simple PHP Form</h1>
+
+<form method="post">
+
+    <label>Name:
+        <input type="text" name="name" value="<?php echo $name; ?>">
+    </label>
+    <?php if (isset($errors["name"])) echo "<p style='color:red'>{$errors["name"]}</p>"; ?>
+
+    <br><br>
+
+    <label>Email:
+        <input type="text" name="email" value="<?php echo $email; ?>">
+    </label>
+    <?php if (isset($errors["email"])) echo "<p style='color:red'>{$errors["email"]}</p>"; ?>
+
+    <br><br>
+
+    <label>Message:
+        <textarea name="message"><?php echo $message; ?></textarea>
+    </label>
+    <?php if (isset($errors["message"])) echo "<p style='color:red'>{$errors["message"]}</p>"; ?>
+
+    <br><br>
+
+    <button type="submit">Send</button>
+</form>
+
+</body>
+</html>
