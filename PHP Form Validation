@@ -1,110 +1,55 @@
 <?php
+require 'nav.php'; // stops code if nav file is missing
 
-// Remember: When validating forms, we want to *validate in the browser first* using JavaScript. 
+// Setup empty variables
+$name = "";
+$email = "";
+$message = "";
+$errors = [];
 
-// After JS validates it, *then* it's sent to the server, which validates it again using code like we see below.
+// When form is submitted
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-// Why do it 2x? Security.
+    // --- SANITIZE ---
 
-// ---------
+    // Note: trim removes whitespace from the beginning and end
 
-// First step here is to create variables which we will populate with content shortly.
+    // htmlspecialchars converts special characters to HTML entities (for security)
 
-// Right now we are creating several variables at once and setting their initial values to nothing (empty):
+    // more about htmlspecialchars: https://chatgpt.com/share/67fd4dd4-8520-800e-87e4-c2abd62d63e1
 
-// Initialize variables:
+    $name = htmlspecialchars(trim($_POST["name"] ?? ""), ENT_QUOTES);
 
-$name = $email = $date = ""; // user content
-$nameErr = $emailErr = $dateErr = ""; // error messages
-$success = false; // validation status
+    $email = filter_var(trim($_POST["email"] ?? ""), FILTER_SANITIZE_EMAIL);
 
-// Check if the form was submitted:
+    $message = htmlspecialchars(trim($_POST["message"] ?? ""), ENT_QUOTES);
 
-// Note: $_SERVER["REQUEST_METHOD"] == "POST" tells the server that the form was submitted using the POST method (you can see 'post' in the HTML)
+    // --- VALIDATE ---
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // strlen = number of characters in a string. Below you see a minimum of 2 characters required.
 
-    // If the Submit button was clicked:
-
-    if (isset($_POST["submit"])) {
-
-        // "isset" is used to check if a variable is set and if so, is *not* null (it has content). It returns true if the variable exists and is not null; otherwise, it returns false 
-
-        // Remember: we cannot even click the button successfully until the fields are filled correctly, per our validation
-
-        // Here we set $success to true only once the button is clicked successfully:
-
-        $success = true;
-
-        // --- Name Validation - is there a value to begin with or is it empty?
-
-        if (empty($_POST["name"])) {
-            $nameErr = "Name is required";
-            $success = false;
-        } else {
-            // Note: trim removes whitespace from the beginning and end
-
-            // htmlspecialchars converts special characters to HTML entities (for security)
-
-            // more about htmlspecialchars: https://chatgpt.com/share/67fd4dd4-8520-800e-87e4-c2abd62d63e1
-
-            $name = htmlspecialchars(trim($_POST["name"]));
-
-            // next, preg_match checks if the name contains only letters and spaces. More about preg_match (which is really scary-looking at 1st glance):
-
-            // https://chatgpt.com/share/67fd4c3d-c388-800e-9f8f-e9365c89c1f8
-
-            if (!preg_match("/^[a-zA-Z ]*$/", $name)) {
-                $nameErr = "Only letters and spaces allowed";
-                $success = false;
-            }
-        }
-
-        // --- Email Validation - is there a value to begin with or is it empty?
-
-        if (empty($_POST["email"])) {
-            $emailErr = "Email is required";
-            $success = false;
-        } else {
-            // trim removes whitespace, then filter_var sanitizes the email input
-            $email = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL);
-
-            // filter_var also validates the email format
-
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $emailErr = "Invalid email format";
-                $success = false;
-            }
-        }
-
-        // --- Date Validation - is there a value to begin with or is it empty?
-
-        if (empty($_POST["date"])) {
-            $dateErr = "Date is required";
-            $success = false;
-        } else {
-            $date = $_POST["date"];
-
-            // Note: strtotime converts the date string into a timestamp to compare it.
-
-            // Note here how the code checks to make sure the date is not in the past by comparing today's date with the date entered in the form:
-
-            if (strtotime($date) < strtotime(date("Y-m-d"))) {
-                $dateErr = "Date cannot be in the past";
-                $success = false;
-            }
-        }
+    // Name required, at least 2 chars
+    if ($name === "" || strlen($name) < 2) {
+        $errors["name"] = "Please enter your name (2+ characters).";
     }
 
-    // If the Modify Info button was clicked (only possible after successful submission):
+    // Email required and must be valid
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors["email"] = "Please enter a valid email address.";
+    }
 
-    if (isset($_POST["modify"])) {
+    // Message required
+    if ($message === "") {
+        $errors["message"] = "Message cannot be empty.";
+    }
 
-        // Reset all variables, ie, start from scratch:
-
-        $name = $email = $date = "";
-        $nameErr = $emailErr = $dateErr = "";
-        $success = false;
+    // If no errors: show cleaned data
+    if (empty($errors)) {
+        echo "<h2>Form submitted successfully!</h2>";
+        echo "<p><strong>Name:</strong> $name</p>";
+        echo "<p><strong>Email:</strong> $email</p>";
+        echo "<p><strong>Message:</strong> $message</p>";
+        exit;
     }
 }
 ?>
@@ -121,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     input {
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
     }
 
     ul {
@@ -129,51 +74,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 </style>
 
-<h2>Appointment Form</h2>
+<h1>Basic PHP Form</h1>
 
 <form method="post">
 
-    <ul>
-        <!-- Note how when the page 1st loads there is only a red asterisk but once a field is entered incorrectly there is a longer error message. -->
+    <label>Name:
+        <input type="text" name="name" value="<?php echo $name; ?>">
+    </label>
+    <?php if (isset($errors["name"])) echo "<p style='color:red'>{$errors["name"]}</p>"; ?>
 
-        <!-- Check it out in the HTML to confirm. The longer message is not there. So from where is it coming? It is the same answer for all 3 values below. See if you understand its origin in the code. -->
+    <br><br>
 
-        <li>Name: <input type="text" name="name" value="<?php echo $name; ?>">
-            <span class="error">* <?php echo $nameErr; ?></span>
-        </li>
+    <label>Email:
+        <input type="text" name="email" value="<?php echo $email; ?>">
+    </label>
+    <?php if (isset($errors["email"])) echo "<p style='color:red'>{$errors["email"]}</p>"; ?>
 
-        <li> Email: <input type="text" name="email" value="<?php echo $email; ?>">
-            <span class="error">* <?php echo $emailErr; ?></span>
-        </li>
+    <br><br>
 
-        <li> Appointment Date: <input type="date" name="date" value="<?php echo $date; ?>">
-            <span class="error">* <?php echo $dateErr; ?></span>
-        </li>
-    </ul>
+    <label>Message:
+        <textarea name="message"><?php echo $message; ?></textarea>
+    </label>
+    <?php if (isset($errors["message"])) echo "<p style='color:red'>{$errors["message"]}</p>"; ?>
 
-    <?php
-    // Note how PHP and HTML are coded together here, dropping in and out of each language. This is a common practice.
+    <br><br>
 
-    // The code says, If it is NOT a successful form submission leave the button as-is
-    // but if it IS successful, change it so a user can modify the info
-
-    if (!$success): ?>
-        <input type="submit" name="submit" value="Submit">
-    <?php else: ?>
-        <input type="submit" name="modify" value="Modify Info">
-    <?php endif; ?>
+    <button type="submit">Send</button>
 </form>
 
-<?php
-// more about the concatenation seen below:
-// https://chatgpt.com/share/67fd5151-b0b0-800e-bcb5-b582c68cddc4
-
-if ($success) {
-    echo '<h3>Appointment Confirmed!</h3>';
-    echo '<p><strong>Name: </strong>';
-    echo $name . '</p>';
-    echo '<p><strong>Email: </strong>';
-    echo $email . '</p>';
-    echo '<p><strong>Appointment Date: </strong>';
-    echo $date . '</p>';
-} ?>
+</body>
+</html>
